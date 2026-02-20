@@ -31,6 +31,7 @@ const MODEL_COLORS: Record<string, string> = {
   "Opus 4.6": "#D97757",
   "Sonnet 4.6": "#D97757",
   "Grok 4.1": "#FFFFFF",
+  "MiniMax 2.5": "#FF3B30",
 };
 
 function getColor(name: string): string {
@@ -45,6 +46,7 @@ function getLogo(name: string): string | null {
   if (name.includes("GPT")) return "/assets/logos/openai.svg";
   if (name.includes("Opus") || name.includes("Sonnet")) return "/assets/logos/claude.svg";
   if (name.includes("Grok")) return "/assets/logos/grok.svg";
+  if (name.includes("MiniMax")) return "/assets/logos/minimax.svg";
   return null;
 }
 

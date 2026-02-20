@@ -15,6 +15,7 @@ export const MODELS = [
   { id: "anthropic/claude-opus-4.6", name: "Opus 4.6" },
   { id: "anthropic/claude-sonnet-4.6", name: "Sonnet 4.6" },
   { id: "x-ai/grok-4.1-fast", name: "Grok 4.1" },
+  { id: "minimax/minimax-m2.5", name: "MiniMax 2.5" },
 ] as const;
 
 export type Model = (typeof MODELS)[number];
@@ -29,6 +30,7 @@ export const MODEL_COLORS: Record<string, string> = {
   "Opus 4.6": "blue",
   "Sonnet 4.6": "red",
   "Grok 4.1": "white",
+  "MiniMax 2.5": "magentaBright",
 };
 
 export const NAME_PAD = 16;
