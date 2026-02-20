@@ -1,7 +1,8 @@
 import { Database } from "bun:sqlite";
 import type { RoundState } from "./game.ts";
 
-export const db = new Database("quipslop.sqlite", { create: true });
+const dbPath = process.env.DATABASE_PATH ?? "quipslop.sqlite";
+export const db = new Database(dbPath, { create: true });
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS rounds (
