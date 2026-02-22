@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import indexHtml from "./index.html";
 import historyHtml from "./history.html";
 import adminHtml from "./admin.html";
+import broadcastHtml from "./broadcast.html";
 import { clearAllRounds, getRounds, getAllRounds } from "./db.ts";
 import {
   MODELS,
@@ -251,6 +252,7 @@ const server = Bun.serve<WsData>({
     "/": indexHtml,
     "/history": historyHtml,
     "/admin": adminHtml,
+    "/broadcast": broadcastHtml,
   },
   async fetch(req, server) {
     const url = new URL(req.url);
