@@ -79,6 +79,11 @@ export type GameState = {
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
+  extraBody: {
+    reasoning: {
+      effort: "medium",
+    },
+  },
 });
 
 // ── Logger ──────────────────────────────────────────────────────────────────
@@ -187,12 +192,13 @@ Come up with something ORIGINAL — don't copy these examples.`;
 export async function callGeneratePrompt(model: Model): Promise<string> {
   log("INFO", `prompt:${model.name}`, "Calling API", { modelId: model.id });
   const system = buildPromptSystem();
-  const { text, usage } = await generateText({
+  const { text, usage, reasoning } = await generateText({
     model: openrouter.chat(model.id),
     system,
     prompt:
       "Generate a single original Quiplash prompt. Be creative and don't repeat common patterns.",
   });
+
   log("INFO", `prompt:${model.name}`, "Raw response", {
     rawText: text,
     usage,
@@ -208,11 +214,12 @@ export async function callGenerateAnswer(
     modelId: model.id,
     prompt,
   });
-  const { text, usage } = await generateText({
+  const { text, usage, reasoning } = await generateText({
     model: openrouter.chat(model.id),
     system: `You are playing Quiplash! You'll be given a fill-in-the-blank prompt. Give the FUNNIEST possible answer. Be creative, edgy, unexpected, and concise. Reply with ONLY your answer — no quotes, no explanation, no preamble. Keep it short (under 12 words). Keep it concise and witty.`,
     prompt: `Fill in the blank: ${prompt}`,
   });
+
   log("INFO", `answer:${model.name}`, "Raw response", {
     rawText: text,
     usage,
@@ -232,11 +239,12 @@ export async function callVote(
     answerA: a.answer,
     answerB: b.answer,
   });
-  const { text, usage } = await generateText({
+  const { text, usage, reasoning } = await generateText({
     model: openrouter.chat(voter.id),
     system: `You are a judge in a comedy game. You'll see a fill-in-the-blank prompt and two answers. Pick which answer is FUNNIER. You MUST respond with exactly "A" or "B" — nothing else.`,
     prompt: `Prompt: "${prompt}"\n\nAnswer A: "${a.answer}"\nAnswer B: "${b.answer}"\n\nWhich is funnier? Reply with just A or B.`,
   });
+
   log("INFO", `vote:${voter.name}`, "Raw response", { rawText: text, usage });
   const cleaned = text.trim().toUpperCase();
   if (!cleaned.startsWith("A") && !cleaned.startsWith("B")) {
