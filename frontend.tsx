@@ -347,8 +347,11 @@ function Standings({
           <a href="/history" className="standings__link">
             History
           </a>
-          <a href="/admin" className="standings__link">
-            Admin
+          <a href="https://twitch.tv/quipslop" target="_blank" rel="noopener noreferrer" className="standings__link">
+            Twitch
+          </a>
+          <a href="https://github.com/T3-Content/quipslop" target="_blank" rel="noopener noreferrer" className="standings__link">
+            GitHub
           </a>
         </div>
       </div>

@@ -270,9 +270,6 @@ function App() {
             <a href="/" className="back-link">
               ← Back to Game
             </a>
-            <a href="/admin" className="back-link">
-              Admin
-            </a>
           </div>
         </div>
 
