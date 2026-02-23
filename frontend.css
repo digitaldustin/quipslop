@@ -417,8 +417,8 @@ body {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 220px;
+  gap: 20px;
+  max-height: 50vh;
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -455,54 +455,85 @@ body {
   color: var(--text);
 }
 
-.standings__list {
+/* ── Leaderboard Section ─────────────────────────────────────── */
+
+.lb-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
-.standing {
+.lb-section__head {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
+.lb-section__label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.lb-section__list {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 0;
+  flex-direction: column;
 }
 
-.standing--active {
+/* ── Leaderboard Entry ───────────────────────────────────────── */
+
+.lb-entry {
+  padding: 6px 0 4px;
+  opacity: 0.55;
+  transition: opacity 0.3s;
+}
+
+.lb-entry--active,
+.lb-entry:hover {
   opacity: 1;
 }
 
-.standing__rank {
-  width: 22px;
+.lb-entry__top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.lb-entry__rank {
+  width: 20px;
+  flex-shrink: 0;
   text-align: center;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  flex-shrink: 0;
 }
 
-.standing__bar {
-  flex: 1;
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-  min-width: 40px;
-}
-
-.standing__fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.standing__score {
+.lb-entry__score {
+  margin-left: auto;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 700;
   color: var(--text-dim);
-  min-width: 16px;
+  min-width: 14px;
   text-align: right;
+}
+
+.lb-entry__bar {
+  margin-left: 26px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.lb-entry__fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ── Connecting ───────────────────────────────────────────────── */
@@ -720,5 +751,6 @@ body {
     max-height: none;
     overflow-y: auto;
     padding: 24px;
+    gap: 24px;
   }
 }

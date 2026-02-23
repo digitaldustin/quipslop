@@ -30,6 +30,7 @@ if (!process.env.OPENROUTER_API_KEY) {
 
 const allRounds = getAllRounds();
 const initialScores = Object.fromEntries(MODELS.map((m) => [m.name, 0]));
+const initialViewerScores = Object.fromEntries(MODELS.map((m) => [m.name, 0]));
 
 let initialCompleted: RoundState[] = [];
 if (allRounds.length > 0) {
@@ -43,6 +44,15 @@ if (allRounds.length > 0) {
           (initialScores[round.contestants[1].name] || 0) + 1;
       }
     }
+    const vvA = round.viewerVotesA ?? 0;
+    const vvB = round.viewerVotesB ?? 0;
+    if (vvA > vvB) {
+      initialViewerScores[round.contestants[0].name] =
+        (initialViewerScores[round.contestants[0].name] || 0) + 1;
+    } else if (vvB > vvA) {
+      initialViewerScores[round.contestants[1].name] =
+        (initialViewerScores[round.contestants[1].name] || 0) + 1;
+    }
   }
   const lastRound = allRounds[allRounds.length - 1];
   if (lastRound) {
@@ -54,6 +64,7 @@ const gameState: GameState = {
   completed: initialCompleted,
   active: null,
   scores: initialScores,
+  viewerScores: initialViewerScores,
   done: false,
   isPaused: false,
   generation: 0,
@@ -349,6 +360,7 @@ function getClientState() {
     active: gameState.active,
     lastCompleted: gameState.completed.at(-1) ?? null,
     scores: gameState.scores,
+    viewerScores: gameState.viewerScores,
     done: gameState.done,
     isPaused: gameState.isPaused,
     generation: gameState.generation,
@@ -635,6 +647,7 @@ const server = Bun.serve<WsData>({
       gameState.completed = [];
       gameState.active = null;
       gameState.scores = Object.fromEntries(MODELS.map((m) => [m.name, 0]));
+      gameState.viewerScores = Object.fromEntries(MODELS.map((m) => [m.name, 0]));
       gameState.done = false;
       gameState.isPaused = true;
       gameState.generation += 1;

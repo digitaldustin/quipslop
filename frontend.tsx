@@ -38,6 +38,7 @@ type GameState = {
   lastCompleted: RoundState | null;
   active: RoundState | null;
   scores: Record<string, number>;
+  viewerScores: Record<string, number>;
   done: boolean;
   isPaused: boolean;
   generation: number;
@@ -382,16 +383,63 @@ function GameOver({ scores }: { scores: Record<string, number> }) {
 
 // ── Standings ────────────────────────────────────────────────────────────────
 
-function Standings({
+function LeaderboardSection({
+  label,
   scores,
-  activeRound,
+  competing,
 }: {
+  label: string;
   scores: Record<string, number>;
-  activeRound: RoundState | null;
+  competing: Set<string>;
 }) {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   const maxScore = sorted[0]?.[1] || 1;
 
+  return (
+    <div className="lb-section">
+      <div className="lb-section__head">
+        <span className="lb-section__label">{label}</span>
+      </div>
+      <div className="lb-section__list">
+        {sorted.map(([name, score], i) => {
+          const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+          const color = getColor(name);
+          const active = competing.has(name);
+          return (
+            <div
+              key={name}
+              className={`lb-entry ${active ? "lb-entry--active" : ""}`}
+            >
+              <div className="lb-entry__top">
+                <span className="lb-entry__rank">
+                  {i === 0 && score > 0 ? "👑" : i + 1}
+                </span>
+                <ModelTag model={{ id: name, name }} small />
+                <span className="lb-entry__score">{score}</span>
+              </div>
+              <div className="lb-entry__bar">
+                <div
+                  className="lb-entry__fill"
+                  style={{ width: `${pct}%`, background: color }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Standings({
+  scores,
+  viewerScores,
+  activeRound,
+}: {
+  scores: Record<string, number>;
+  viewerScores: Record<string, number>;
+  activeRound: RoundState | null;
+}) {
   const competing = activeRound
     ? new Set([
         activeRound.contestants[0].name,
@@ -415,31 +463,16 @@ function Standings({
           </a>
         </div>
       </div>
-      <div className="standings__list">
-        {sorted.map(([name, score], i) => {
-          const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-          const color = getColor(name);
-          const active = competing.has(name);
-          return (
-            <div
-              key={name}
-              className={`standing ${active ? "standing--active" : ""}`}
-            >
-              <span className="standing__rank">
-                {i === 0 && score > 0 ? "👑" : i + 1}
-              </span>
-              <ModelTag model={{ id: name, name }} small />
-              <div className="standing__bar">
-                <div
-                  className="standing__fill"
-                  style={{ width: `${pct}%`, background: color }}
-                />
-              </div>
-              <span className="standing__score">{score}</span>
-            </div>
-          );
-        })}
-      </div>
+      <LeaderboardSection
+        label="AI Judges"
+        scores={scores}
+        competing={competing}
+      />
+      <LeaderboardSection
+        label="Viewers"
+        scores={viewerScores}
+        competing={competing}
+      />
     </aside>
   );
 }
@@ -578,7 +611,7 @@ function App() {
           )}
         </main>
 
-        <Standings scores={state.scores} activeRound={state.active} />
+        <Standings scores={state.scores} viewerScores={state.viewerScores ?? {}} activeRound={state.active} />
       </div>
     </div>
   );

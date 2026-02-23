@@ -73,6 +73,7 @@ export type GameState = {
   completed: RoundState[];
   active: RoundState | null;
   scores: Record<string, number>;
+  viewerScores: Record<string, number>;
   done: boolean;
   isPaused: boolean;
   generation: number;
@@ -470,6 +471,14 @@ export async function runGame(
       state.scores[contA.name] = (state.scores[contA.name] || 0) + 1;
     } else if (votesB > votesA) {
       state.scores[contB.name] = (state.scores[contB.name] || 0) + 1;
+    }
+    // Viewer vote scoring
+    const vvA = round.viewerVotesA ?? 0;
+    const vvB = round.viewerVotesB ?? 0;
+    if (vvA > vvB) {
+      state.viewerScores[contA.name] = (state.viewerScores[contA.name] || 0) + 1;
+    } else if (vvB > vvA) {
+      state.viewerScores[contB.name] = (state.viewerScores[contB.name] || 0) + 1;
     }
     rerender();
 

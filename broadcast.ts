@@ -32,6 +32,7 @@ type GameState = {
   lastCompleted: RoundState | null;
   active: RoundState | null;
   scores: Record<string, number>;
+  viewerScores: Record<string, number>;
   done: boolean;
   isPaused: boolean;
   generation: number;
@@ -294,9 +295,61 @@ function drawHeader() {
 
 }
 
-function drawScoreboard(scores: Record<string, number>) {
-  const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  
+function drawScoreboardSection(
+  entries: [string, number][],
+  label: string,
+  startY: number,
+  entryHeight: number,
+) {
+  const maxScore = entries[0]?.[1] || 1;
+
+  // Section label
+  ctx.font = '700 13px "JetBrains Mono", monospace';
+  ctx.fillStyle = "#555";
+  ctx.fillText(label, WIDTH - 348, startY);
+
+  // Divider line under label
+  ctx.fillStyle = "#1c1c1c";
+  ctx.fillRect(WIDTH - 348, startY + 8, 296, 1);
+
+  entries.forEach(([name, score], index) => {
+    const y = startY + 20 + index * entryHeight;
+    const color = getColor(name);
+    const pct = maxScore > 0 ? score / maxScore : 0;
+
+    ctx.font = '600 16px "JetBrains Mono", monospace';
+    ctx.fillStyle = "#555";
+    const rank = index === 0 && score > 0 ? "👑" : String(index + 1);
+    ctx.fillText(rank, WIDTH - 348, y + 18);
+
+    ctx.font = '600 16px "Inter", sans-serif';
+    ctx.fillStyle = color;
+    const nameText = name.length > 18 ? `${name.slice(0, 18)}...` : name;
+
+    const drewLogo = drawModelLogo(name, WIDTH - 310, y + 4, 20);
+    if (drewLogo) {
+      ctx.fillText(nameText, WIDTH - 310 + 26, y + 18);
+    } else {
+      ctx.fillText(nameText, WIDTH - 310, y + 18);
+    }
+
+    roundRect(WIDTH - 310, y + 30, 216, 3, 2, "#1c1c1c");
+    if (pct > 0) {
+      roundRect(WIDTH - 310, y + 30, Math.max(6, 216 * pct), 3, 2, color);
+    }
+
+    ctx.font = '700 16px "JetBrains Mono", monospace';
+    ctx.fillStyle = "#666";
+    const scoreText = String(score);
+    const scoreWidth = ctx.measureText(scoreText).width;
+    ctx.fillText(scoreText, WIDTH - 48 - scoreWidth, y + 18);
+  });
+}
+
+function drawScoreboard(scores: Record<string, number>, viewerScores: Record<string, number>) {
+  const modelEntries = Object.entries(scores).sort((a, b) => b[1] - a[1]) as [string, number][];
+  const viewerEntries = Object.entries(viewerScores).sort((a, b) => b[1] - a[1]) as [string, number][];
+
   roundRect(WIDTH - 380, 0, 380, HEIGHT, 0, "#111");
   ctx.fillStyle = "#1c1c1c";
   ctx.fillRect(WIDTH - 380, 0, 1, HEIGHT);
@@ -305,40 +358,11 @@ function drawScoreboard(scores: Record<string, number>) {
   ctx.fillStyle = "#888";
   ctx.fillText("STANDINGS", WIDTH - 348, 76);
 
-  const maxScore = entries[0]?.[1] || 1;
+  const entryHeight = 52;
+  drawScoreboardSection(modelEntries, "AI JUDGES", 110, entryHeight);
 
-  entries.slice(0, 10).forEach(([name, score], index) => {
-    const y = 140 + index * 68;
-    const color = getColor(name);
-    const pct = maxScore > 0 ? (score / maxScore) : 0;
-
-    ctx.font = '600 20px "JetBrains Mono", monospace';
-    ctx.fillStyle = "#888";
-    const rank = index === 0 && score > 0 ? "👑" : String(index + 1);
-    ctx.fillText(rank, WIDTH - 348, y + 24);
-
-    ctx.font = '600 20px "Inter", sans-serif';
-    ctx.fillStyle = color;
-    const nameText = name.length > 18 ? `${name.slice(0, 18)}...` : name;
-
-    const drewLogo = drawModelLogo(name, WIDTH - 304, y + 6, 24);
-    if (drewLogo) {
-      ctx.fillText(nameText, WIDTH - 304 + 32, y + 24);
-    } else {
-      ctx.fillText(nameText, WIDTH - 304, y + 24);
-    }
-
-    roundRect(WIDTH - 304, y + 42, 208, 4, 2, "#1c1c1c");
-    if (pct > 0) {
-      roundRect(WIDTH - 304, y + 42, Math.max(8, 208 * pct), 4, 2, color);
-    }
-
-    ctx.font = '700 20px "JetBrains Mono", monospace';
-    ctx.fillStyle = "#888";
-    const scoreText = String(score);
-    const scoreWidth = ctx.measureText(scoreText).width;
-    ctx.fillText(scoreText, WIDTH - 48 - scoreWidth, y + 24);
-  });
+  const viewerStartY = 110 + 28 + modelEntries.length * entryHeight + 16;
+  drawScoreboardSection(viewerEntries, "VIEWERS", viewerStartY, entryHeight);
 }
 
 function drawRound(round: RoundState) {
@@ -608,7 +632,7 @@ function draw() {
       return;
   }
 
-  drawScoreboard(state.scores);
+  drawScoreboard(state.scores, state.viewerScores ?? {});
   
   const isNextPrompting = state.active?.phase === "prompting" && !state.active.prompt;
   const displayRound = isNextPrompting && state.lastCompleted ? state.lastCompleted : (state.active ?? state.lastCompleted ?? null);
