@@ -109,6 +109,11 @@ function isPrivateIp(ip: string): boolean {
   if (v4 === "127.0.0.1" || ip === "::1") return true;
   if (v4.startsWith("10.")) return true;
   if (v4.startsWith("192.168.")) return true;
+  // CGNAT range (RFC 6598) — used by Railway's internal proxy
+  if (v4.startsWith("100.")) {
+    const second = parseInt(v4.split(".")[1] ?? "", 10);
+    if (second >= 64 && second <= 127) return true;
+  }
   if (ip.startsWith("fc") || ip.startsWith("fd")) return true;
   if (v4.startsWith("172.")) {
     const second = parseInt(v4.split(".")[1] ?? "", 10);
@@ -127,11 +132,13 @@ function getClientIp(req: Request, server: Bun.Server<WsData>): string {
     const xff = req.headers.get("x-forwarded-for");
     if (xff) {
       const rightmost = xff.split(",").at(-1)?.trim();
-      if (rightmost) return rightmost;
+      if (rightmost && !isPrivateIp(rightmost)) {
+        return rightmost.startsWith("::ffff:") ? rightmost.slice(7) : rightmost;
+      }
     }
   }
 
-  return socketIp;
+  return socketIp.startsWith("::ffff:") ? socketIp.slice(7) : socketIp;
 }
 
 function isRateLimited(key: string, limit: number, windowMs: number): boolean {
