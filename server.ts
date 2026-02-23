@@ -98,6 +98,10 @@ const FOSSABOT_VALIDATE_TIMEOUT_MS = parsePositiveInt(
   process.env.FOSSABOT_VALIDATE_TIMEOUT_MS,
   1_500,
 );
+const VIEWER_VOTE_BROADCAST_DEBOUNCE_MS = parsePositiveInt(
+  process.env.VIEWER_VOTE_BROADCAST_DEBOUNCE_MS,
+  250,
+);
 const ADMIN_COOKIE = "quipslop_admin";
 const ADMIN_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
@@ -337,7 +341,7 @@ function scheduleViewerVoteBroadcast() {
   viewerVoteBroadcastTimer = setTimeout(() => {
     viewerVoteBroadcastTimer = null;
     broadcast();
-  }, 5_000);
+  }, VIEWER_VOTE_BROADCAST_DEBOUNCE_MS);
 }
 
 function getClientState() {
