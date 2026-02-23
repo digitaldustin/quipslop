@@ -243,14 +243,19 @@ function broadcast() {
   }
 }
 
+let viewerCountTimer: ReturnType<typeof setTimeout> | null = null;
 function broadcastViewerCount() {
-  const msg = JSON.stringify({
-    type: "viewerCount",
-    viewerCount: clients.size,
-  });
-  for (const ws of clients) {
-    ws.send(msg);
-  }
+  if (viewerCountTimer) return;
+  viewerCountTimer = setTimeout(() => {
+    viewerCountTimer = null;
+    const msg = JSON.stringify({
+      type: "viewerCount",
+      viewerCount: clients.size,
+    });
+    for (const ws of clients) {
+      ws.send(msg);
+    }
+  }, 1000);
 }
 
 function getAdminSnapshot() {

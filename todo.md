@@ -2,4 +2,9 @@
 
 - [ ] Win streaks
 - [ ] Experiment with more models
-- [ ] Actual admin page where I enter a passkey, get a jwt and can see status, pause/resume, see costs etc
+
+## TODO Bugfixes
+
+- [ ] Text wrapping on long single-strings
+- [ ] Stream crashing on fresh deployment (because the ffmpeg pipe dies, we should handle this in the ffmpeg script)
+- [ ] Throttle view count updates
